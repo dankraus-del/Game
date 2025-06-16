@@ -14,7 +14,7 @@ AProjectile::AProjectile()
     {
         CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
         CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("Projectile"));
-        CollisionComponent->OnComponentHit.AddDynamic(this, &AFPSProjectile::OnHit);
+        CollisionComponent->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
         CollisionComponent->InitSphereRadius(15.0f);
         RootComponent = CollisionComponent;
     }
@@ -60,7 +60,7 @@ void AProjectile::BeginPlay()
     Super::BeginPlay();
 }
 
-void ASProjectile::Tick(float DeltaTime)
+void AProjectile::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 }

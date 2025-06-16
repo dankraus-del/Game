@@ -1,22 +1,22 @@
 #include "AimCross.h"
 #include "Engine/Canvas.h"
-#include "Engine/Texture2D.h"
 
-void CrossHair::DrawHUD()
+void AAimCross::DrawHUD()
 {
     Super::DrawHUD();
 
-    if (CrosshairTexture)
+    if (CrosshairTexture && Canvas)
     {
-        FVector2D Center(Canvas->ClipX * 0.5f, Canvas->ClipY * 0.5f);
+        const FVector2D Center(Canvas->ClipX * 0.5f, Canvas->ClipY * 0.5f);
 
-        FVector2D CrossHairDrawPosition(
+        const FVector2D CrosshairDrawPosition(
             Center.X - (CrosshairTexture->GetSizeX() * 0.5f),
             Center.Y - (CrosshairTexture->GetSizeY() * 0.5f)
         );
 
-        FCanvasTileItem TileItem(CrossHairDrawPosition, CrosshairTexture->Resource, FLinearColor::White);
+        FCanvasTileItem TileItem(CrosshairDrawPosition, CrosshairTexture->Resource, FLinearColor::White);
         TileItem.BlendMode = SE_BLEND_Translucent;
+
         Canvas->DrawItem(TileItem);
     }
 }

@@ -1,12 +1,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/AimCross.h"
-#include "Engine/Canvas.h"
+#include "GameFramework/HUD.h"
+#include "Engine/Texture2D.h"
 #include "AimCross.generated.h"
 
 UCLASS()
-class Game_API CrossHair : public CrossHair
+class Game_API AAimCross : public AHUD
 {
     GENERATED_BODY()
 

@@ -1,6 +1,6 @@
-#include "FPSProjectGameMode.h"
+#include "GameMode.h"
  
-void AFPSProjectGameMode::StartPlay()
+void AGameMode::StartPlay()
 {
     Super::StartPlay();
  

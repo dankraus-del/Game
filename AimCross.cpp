@@ -1,8 +1,8 @@
-#include "FPSHUD.h"
+#include "AimCross.h"
 #include "Engine/Canvas.h"
 #include "Engine/Texture2D.h"
 
-void AFPSHUD::DrawHUD()
+void CrossHair::DrawHUD()
 {
     Super::DrawHUD();
 

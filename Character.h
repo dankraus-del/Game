@@ -3,47 +3,28 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Camera/CameraComponent.h"
-#include "Components/WidgetComponent.h"
-#include "HealthBarWidget.h"
+#include "Components/CapsuleComponent.h"
+#include "Projectile.h"
 #include "Character.generated.h"
 
 UCLASS()
-class Game_API ACharacter : public ACharacter
+class Game_API AFPSCharacter : public ACharacter
 {
     GENERATED_BODY()
 
 public:
-    ACharacter();
+    AFPSCharacter();
 
 protected:
     virtual void BeginPlay() override;
 
-    UPROPERTY(EditAnywhere, Category = "Health")
-    float MaxHealth = 100.f;
-
-    UPROPERTY(VisibleAnywhere, Category = "Health")
-    float CurrentHealth;
-
-    UPROPERTY(VisibleAnywhere, Category = "UI")
-    UWidgetComponent* HealthBarComponent;
-
-    void UpdateHealthBar();
-
-    UPROPERTY(EditDefaultsOnly, Category = "Combat")
+    UPROPERTY(EditAnywhere, Category = Projectile)
     TSubclassOf<class AProjectile> ProjectileClass;
-
-    UPROPERTY(EditAnywhere)
-    FVector MuzzleOffset;
-
-    UPROPERTY(VisibleAnywhere)
-    UCameraComponent* FPSCameraComponent;
-
-    UPROPERTY(VisibleDefaultsOnly)
-    USkeletalMeshComponent* FPSMesh;
 
 public:
     virtual void Tick(float DeltaTime) override;
-    virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
+    virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
     UFUNCTION()
     void MoveForward(float Value);
@@ -57,9 +38,15 @@ public:
     UFUNCTION()
     void StopJump();
 
+    UPROPERTY(VisibleAnywhere)
+    UCameraComponent* FPSCameraComponent;
+
+    UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+    USkeletalMeshComponent* FPSMesh;
+
     UFUNCTION()
     void Fire();
 
-    UFUNCTION()
-    void TakeDamage(float DamageAmount);
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+    FVector MuzzleOffset;
 };

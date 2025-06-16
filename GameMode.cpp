@@ -4,5 +4,5 @@ void AGameMode::StartPlay()
 {
     Super::StartPlay();
  
-    checkGEngine != nullptr);
+    check(GEngine != nullptr);
 }

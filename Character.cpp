@@ -1,6 +1,9 @@
 #include "Character.h"
+#include "Engine/World.h"
+#include "GameFramework/PlayerController.h"
+#include "Kismet/GameplayStatics.h"
 
-ACharacter::ACharacter()
+AFPSCharacter::AFPSCharacter()
 {
     PrimaryActorTick.bCanEverTick = true;
 
@@ -24,85 +27,96 @@ ACharacter::ACharacter()
     FPSMesh->CastShadow = false;
 
     GetMesh()->SetOwnerNoSee(true);
+
+    MuzzleOffset = FVector(100.0f, 0.0f, 0.0f);
 }
 
-void ACharacter::BeginPlay()
+void AFPSCharacter::BeginPlay()
 {
     Super::BeginPlay();
 
     check(GEngine != nullptr);
 }
 
-void ACharacter::Tick(float DeltaTime)
+void AFPSCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 }
 
-void ACharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AFPSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-    PlayerInputComponent->BindAxis("MoveForward", this, &ACharacter::MoveForward);
-    PlayerInputComponent->BindAxis("MoveRight", this, &ACharacter::MoveRight);
+    PlayerInputComponent->BindAxis("MoveForward", this, &AFPSCharacter::MoveForward);
+    PlayerInputComponent->BindAxis("MoveRight", this, &AFPSCharacter::MoveRight);
 
-    PlayerInputComponent->BindAxis("Turn", this, &ACharacter::AddControllerYawInput);
-    PlayerInputComponent->BindAxis("LookUp", this, &ACharacter::AddControllerPitchInput);
+    PlayerInputComponent->BindAxis("Turn", this, &AFPSCharacter::AddControllerYawInput);
+    PlayerInputComponent->BindAxis("LookUp", this, &AFPSCharacter::AddControllerPitchInput);
 
-    PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::StartJump);
-    PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJump);
-    PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ACharacter::Fire);
+    PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AFPSCharacter::StartJump);
+    PlayerInputComponent->BindAction("Jump", IE_Released, this, &AFPSCharacter::StopJump);
+
+    PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFPSCharacter::Fire);
 }
 
-void ACharacter::MoveForward(float Value)
+void AFPSCharacter::MoveForward(float Value)
 {
-    FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::X);
-    AddMovementInput(Direction, Value);
+    if (Controller && Value != 0.0f)
+    {
+        const FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::X);
+        AddMovementInput(Direction, Value);
+    }
 }
 
-void ACharacter::MoveRight(float Value)
+void AFPSCharacter::MoveRight(float Value)
 {
-    FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y);
-    AddMovementInput(Direction, Value);
+    if (Controller && Value != 0.0f)
+    {
+        const FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y);
+        AddMovementInput(Direction, Value);
+    }
 }
 
-void ACharacter::StartJump()
+void AFPSCharacter::StartJump()
 {
     bPressedJump = true;
 }
 
-void ACharacter::StopJump()
+void AFPSCharacter::StopJump()
 {
     bPressedJump = false;
 }
 
-void ACharacter::Fire()
+void AFPSCharacter::Fire()
 {
-    if (ProjectileClass)
+    if (ProjectileClass == nullptr)
     {
-        FVector CameraLocation;
-        FRotator CameraRotation;
-        GetActorEyesViewPoint(CameraLocation, CameraRotation);
+        UE_LOG(LogTemp, Warning, TEXT("ProjectileClass is not set in %s"), *GetName());
+        return;
+    }
 
-        MuzzleOffset.Set(100.0f, 0.0f, 0.0f);
+    UWorld* World = GetWorld();
+    if (World == nullptr)
+    {
+        return;
+    }
 
-        FVector MuzzleLocation = CameraLocation + FTransform(CameraRotation).TransformVector(MuzzleOffset);
+    FVector CameraLocation;
+    FRotator CameraRotation;
+    GetActorEyesViewPoint(CameraLocation, CameraRotation);
 
-        FRotator MuzzleRotation = CameraRotation;
-        MuzzleRotation.Pitch += 10.0f;
+    FVector MuzzleLocation = CameraLocation + FTransform(CameraRotation).TransformVector(MuzzleOffset);
+    FRotator MuzzleRotation = CameraRotation;
+    MuzzleRotation.Pitch += 10.0f;
 
-        UWorld* World = GetWorld();
-        if (World)
-        {
-            FActorSpawnParameters SpawnParams;
-            SpawnParams.Owner = this;
-            SpawnParams.Instigator = GetInstigator();
+    FActorSpawnParameters SpawnParams;
+    SpawnParams.Owner = this;
+    SpawnParams.Instigator = GetInstigator();
 
-            AFPSProjectile* Projectile = World->SpawnActor<AFPSProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
-            if (Projectile)
-            {
-                FVector LaunchDirection = MuzzleRotation.Vector();
-                Projectile->FireInDirection(LaunchDirection);
-            }
-        }
+    AProjectile* Projectile = World->SpawnActor<AProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
+    if (Projectile)
+    {
+        FVector LaunchDirection = MuzzleRotation.Vector();
+        Projectile->FireInDirection(LaunchDirection);
     }
 }

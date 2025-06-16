@@ -8,12 +8,12 @@
 #include "Character.generated.h"
 
 UCLASS()
-class Game_API ACharacter : public ACharacter
+class Game_API AFPSCharacter : public ACharacter
 {
     GENERATED_BODY()
 
 public:
-    ACharacter();
+    AFPSCharacter();
 
 protected:
     virtual void BeginPlay() override;
